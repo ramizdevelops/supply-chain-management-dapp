@@ -1,0 +1,33 @@
+1. Node.js / Hardhat Dependencies & Caches
+############################################
+node_modules/
+/cache/
+/coverage/
+/artifacts/
+/ganache_db
+
+Ignore the local, persistent Ganache database file.
+2. C# / .NET Build Artifacts and Temporary Files
+##################################################
+
+Directories used by the compiler
+[Bb]in/
+[Oo]bj/
+
+VS Code / Visual Studio Files
+*.user
+*.pdb
+*.suo
+.vs/
+*.log
+
+3. Security and Local Configuration (CRITICAL)
+################################################
+appsettings.json
+appsettings.*.json
+launchSettings.json
+
+4. Operating System and Other Files
+#####################################
+.DS_Store
+Thumbs.db

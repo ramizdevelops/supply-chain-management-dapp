@@ -1,0 +1,20 @@
+{
+  "name": "barcodeblockchainmvp",
+  "version": "1.0.0",
+  "description": "Barcode Blockchain MVP",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "blockchain",
+    "hardhat",
+    "nethereum"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "chai": "^4.3.7",
+    "hardhat": "^2.19.4"
+  }
+}

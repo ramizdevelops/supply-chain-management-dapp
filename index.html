@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Management Dapp</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for aesthetic */
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .tab-button.active {
+            border-bottom: 3px solid #10b981; /* Tailwind green-500 */
+            color: #10b981;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-start justify-center p-4 sm:p-6">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-4xl bg-white shadow-2xl rounded-xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-gray-800 text-white p-6 text-center">
+            <h1 class="text-3xl font-extrabold tracking-tight">Supply Chain Management Integrity Dapp</h1>
+            <p class="text-sm text-gray-400 mt-1">Product Registration and Verification System</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex border-b border-gray-200 bg-gray-50">
+            <button id="manufacturer-tab" class="tab-button active flex-1 py-4 text-center font-semibold text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none" onclick="showView('manufacturer')">
+                Manufacturer (Register)
+            </button>
+            <button id="consumer-tab" class="tab-button flex-1 py-4 text-center font-semibold text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:outline-none" onclick="showView('consumer')">
+                Consumer (Verify)
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <div id="app-content" class="p-4 sm:p-8">
+
+            <!-- Shared Message/Loading Display -->
+            <div id="message-box" class="hidden p-4 rounded-lg mb-6 shadow-md" role="alert"></div>
+
+            <!-- 1. MANUFACTURER VIEW (Email/Password Protected) -->
+            <div id="manufacturer-view" class="view">
+                
+                <div id="manufacturer-auth">
+                    
+                    <div class="flex mb-4">
+                        <button id="show-login-btn" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600 transition duration-150" onclick="showAuthForm('login')">Login</button>
+                        <button id="show-register-btn" class="flex-1 py-2 text-center font-semibold text-gray-500 border-b-2 border-gray-200 transition duration-150" onclick="showAuthForm('register')">Register</button>
+                    </div>
+
+                    <!-- LOGIN FORM -->
+                    <div id="auth-login" class="auth-form">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Manufacturer Login</h2>
+                        <p class="text-sm text-gray-500 mb-6">Log in to access the product registration portal.</p>
+                        
+                        <form id="login-form" class="space-y-4">
+                            <input type="email" id="login-email" placeholder="Email" required class="w-full p-3 border border-gray-300 rounded-lg">
+                            <input type="password" id="login-password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded-lg">
+                            
+                            <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition duration-150 shadow-lg">
+                                Login
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- REGISTER FORM -->
+                    <div id="auth-register" class="auth-form hidden">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-700">Manufacturer Registration</h2>
+                        <p class="text-sm text-gray-500 mb-6">Create an account to become the product administrator.</p>
+                        
+                        <form id="register-form" class="space-y-4">
+                            <input type="email" id="register-email" placeholder="Email" required class="w-full p-3 border border-gray-300 rounded-lg">
+                            <input type="password" id="register-password" placeholder="Password (min 6 characters)" required minlength="6" class="w-full p-3 border border-gray-300 rounded-lg">
+                            
+                            <button type="submit" class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg">
+                                Register Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="manufacturer-registration" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-700">Product Registration (Blockchain Write)</h2>
+                    
+                    <form id="registration-form" class="space-y-4">
+                        <input type="text" id="reg-product-id" placeholder="Product ID (SKU)" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        <input type="text" id="reg-batch" placeholder="Batch Number" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        <input type="text" id="reg-manufacturer" placeholder="Manufacturer Name" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        <input type="date" id="reg-manufacture-date" placeholder="Manufacture Date" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        <input type="text" id="reg-serial" placeholder="Serial Number (Unique per unit)" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        
+                        <button type="submit" class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150 shadow-lg">
+                            Register Product on Blockchain
+                        </button>
+                    </form>
+                    <div id="reg-results" class="mt-6 p-4 bg-gray-100 rounded-lg hidden"></div>
+                </div>
+            </div>
+
+            <!-- 2. CONSUMER VIEW (Public Verification) -->
+            <div id="consumer-view" class="view hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-700">Product Verification (Authenticity Check)</h2>
+                
+                <form id="verification-form" class="space-y-4">
+                    <p class="text-sm text-gray-500 mb-4">Enter the exact product details to verify authenticity against the blockchain record.</p>
+                    <input type="text" id="ver-product-id" placeholder="Product ID (SKU)" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="text" id="ver-batch" placeholder="Batch Number" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="text" id="ver-manufacturer" placeholder="Manufacturer Name" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="date" id="ver-manufacture-date" placeholder="Manufacture Date" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <input type="text" id="ver-serial" placeholder="Serial Number" required class="w-full p-3 border border-gray-300 rounded-lg">
+
+                    <button type="submit" class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-150 shadow-lg">
+                        Verify Product Authenticity
+                    </button>
+                </form>
+                <div id="ver-results" class="mt-6 p-4 rounded-lg hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- CONSTANTS ---
+        const API_BASE_URL = 'http://localhost:5000/api/Product';
+        const MESSAGE_BOX = document.getElementById('message-box');
+        const AUTH_STORAGE_KEY = 'manufacturer_credentials';
+        
+        // --- State/Helpers ---
+        let isAuthenticated = false;
+
+        async function hashPassword(password) {
+            // Using a simple non-cryptographically strong text encoder for MVP simplicity
+            const msgUint8 = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // --- View & Navigation Logic ---
+
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`${viewId}-view`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(`${viewId}-tab`).classList.add('active');
+
+            clearMessage();
+            if (viewId === 'manufacturer') {
+                if (isAuthenticated) {
+                    showRegistrationForm();
+                } else {
+                    showAuthForm('login');
+                }
+            }
+        }
+        
+        function showAuthForm(formType) {
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.add('hidden'));
+            document.getElementById('manufacturer-registration').classList.add('hidden');
+            
+            document.getElementById(`auth-${formType}`).classList.remove('hidden');
+            
+            // Update button styles
+            document.getElementById('show-login-btn').classList.remove('text-blue-600', 'border-blue-600');
+            document.getElementById('show-login-btn').classList.add('text-gray-500', 'border-gray-200');
+            document.getElementById('show-register-btn').classList.remove('text-blue-600', 'border-blue-600');
+            document.getElementById('show-register-btn').classList.add('text-gray-500', 'border-gray-200');
+            
+            if (formType === 'login') {
+                document.getElementById('show-login-btn').classList.replace('text-gray-500', 'text-blue-600');
+                document.getElementById('show-login-btn').classList.replace('border-gray-200', 'border-blue-600');
+            } else {
+                document.getElementById('show-register-btn').classList.replace('text-gray-500', 'text-blue-600');
+                document.getElementById('show-register-btn').classList.replace('border-gray-200', 'border-blue-600');
+            }
+        }
+
+        function showRegistrationForm() {
+            document.getElementById('manufacturer-auth').classList.add('hidden');
+            document.getElementById('manufacturer-registration').classList.remove('hidden');
+            showMessage('Login successful! Welcome to the Product Registration Portal.', 'success');
+        }
+
+        // --- AUTHENTICATION LOGIC ---
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (localStorage.getItem(AUTH_STORAGE_KEY)) {
+                showMessage('Registration failed: An admin account already exists. Please log in.', 'error');
+                showAuthForm('login');
+                return;
+            }
+
+            const hashedPassword = await hashPassword(password);
+            
+            const credentials = { email, passwordHash: hashedPassword };
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(credentials));
+            
+            showMessage('Registration successful! Please log in to continue.', 'success');
+            document.getElementById('login-email').value = email;
+            showAuthForm('login');
+        });
+        
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const storedCreds = localStorage.getItem(AUTH_STORAGE_KEY);
+
+            if (!storedCreds) {
+                showMessage('Login failed: No administrator account registered. Please register first.', 'error');
+                showAuthForm('register');
+                return;
+            }
+            
+            const credentials = JSON.parse(storedCreds);
+            const hashedPassword = await hashPassword(password);
+            
+            if (credentials.email === email && credentials.passwordHash === hashedPassword) {
+                isAuthenticated = true;
+                showRegistrationForm();
+            } else {
+                showMessage('Login failed: Invalid email or password.', 'error');
+            }
+        });
+
+        // --- Shared Setup and Handlers ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Set default date for easier testing
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reg-manufacture-date').value = today;
+            document.getElementById('ver-manufacture-date').value = today;
+            
+            showView('manufacturer');
+        });
+
+        // --- Message Handling ---
+
+        function showMessage(message, type) {
+            MESSAGE_BOX.innerHTML = message;
+            MESSAGE_BOX.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800', 'bg-blue-100', 'text-blue-800');
+            
+            if (type === 'success') {
+                MESSAGE_BOX.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                MESSAGE_BOX.classList.add('bg-red-100', 'text-red-800');
+            } else {
+                MESSAGE_BOX.classList.add('bg-blue-100', 'text-blue-800');
+            }
+        }
+
+        function clearMessage() {
+            MESSAGE_BOX.classList.add('hidden');
+        }
+
+        function setResults(elementId, content, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = content;
+            el.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'bg-gray-100');
+
+            if (type === 'success') {
+                el.classList.add('bg-green-100');
+            } else if (type === 'error') {
+                el.classList.add('bg-red-100');
+            } else {
+                 el.classList.add('bg-gray-100');
+            }
+        }
+
+        // --- API & Form Submission Logic ---
+
+        async function postData(endpoint, data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || `HTTP error! Status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                showMessage(`NETWORK ERROR: ${error.message}. Ensure 'dotnet run' is active on ${API_BASE_URL.split('/api')[0]}`, 'error');
+                return null;
+            }
+        }
+
+        // Handle Registration
+        document.getElementById('registration-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            
+            if (!isAuthenticated) {
+                showMessage('Authorization failed. Please log in first.', 'error');
+                showAuthForm('login');
+                return;
+            }
+
+            const form = e.target;
+            const data = {
+                productId: form['reg-product-id'].value,
+                batch: form['reg-batch'].value,
+                manufacturer: form['reg-manufacturer'].value,
+                manufactureDate: form['reg-manufacture-date'].value,
+                serial: form['reg-serial'].value,
+            };
+
+            showMessage('Sending transaction to C# backend and blockchain...', 'default');
+            
+            const result = await postData('/register', data);
+            
+            if (result) {
+                const content = `
+                    <h3 class="font-bold text-lg text-green-700">Registration Successful!</h3>
+                    <p class="mt-2 text-sm text-gray-700">Product ID: <span class="font-mono">${result.productId}</span></p>
+                    <p class="text-sm text-gray-700">Calculated Hash: <span class="font-mono break-all text-xs">${result.hash}</span></p>
+                    <p class="text-sm text-gray-700">Transaction Hash: <span class="font-mono break-all text-xs">${result.tx}</span></p>
+                    <p class="mt-4 text-xs text-green-700">Data is now immutable on the blockchain.</p>
+                `;
+                setResults('reg-results', content, 'success');
+                // Optional: Copy data to verification fields for easy testing
+                document.getElementById('ver-product-id').value = data.productId;
+                document.getElementById('ver-batch').value = data.batch;
+                document.getElementById('ver-manufacturer').value = data.manufacturer;
+                document.getElementById('ver-manufacture-date').value = data.manufactureDate;
+                document.getElementById('ver-serial').value = data.serial;
+            } else {
+                 setResults('reg-results', `<h3 class="font-bold text-lg text-red-700">Registration Failed!</h3><p class="mt-2 text-sm text-gray-700">Check console for error details.</p>`, 'error');
+            }
+        });
+
+        // Handle Verification
+        document.getElementById('verification-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessage();
+            const form = e.target;
+            const data = {
+                productId: form['ver-product-id'].value,
+                batch: form['ver-batch'].value,
+                manufacturer: form['ver-manufacturer'].value,
+                manufactureDate: form['ver-manufacture-date'].value,
+                serial: form['ver-serial'].value,
+            };
+
+            showMessage('Checking blockchain record...', 'default');
+
+            const result = await postData('/verify', data);
+
+            if (result) {
+                let content, type;
+
+                if (result.match) {
+                    type = 'success';
+                    content = `<h3 class="font-bold text-lg text-green-700">VERIFICATION SUCCESSFUL!</h3>
+                        <p class="mt-2 text-sm text-green-700">This product is **GENUINE** and the current data matches the original blockchain record.</p>`;
+                } else if (result.registered === false) {
+                    type = 'error';
+                    content = `<h3 class="font-bold text-lg text-red-700">VERIFICATION FAILED: UNKNOWN PRODUCT</h3>
+                        <p class="mt-2 text-sm text-red-700">The Product ID was not found on the blockchain.</p>`;
+                } else {
+                    type = 'error';
+                    content = `<h3 class="font-bold text-lg text-red-700">VERIFICATION FAILED: DATA TAMPERED</h3>
+                        <p class="mt-2 text-sm text-red-700">The current product details do **NOT** match the original record.</p>
+                        <p class="text-sm text-red-700 mt-1">Status: **COUNTERFEIT / TAMPERED**</p>`;
+                }
+                
+                content += `<div class="mt-4 text-xs text-gray-700 p-2 bg-white rounded">
+                    Original Hash (On-Chain): <span class="font-mono break-all">${result.onchainHash || 'N/A'}</span>
+                    <br>Tamper Flag: ${result.isFake ? '<span class="text-red-600 font-bold">YES</span>' : 'No'}
+                </div>`;
+
+                setResults('ver-results', content, type);
+            }
+        });
+    </script>
+</body>
+</html>
