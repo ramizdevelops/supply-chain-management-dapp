@@ -93,7 +93,7 @@ It will listen at http://localhost:5000
 
 Open project in VS Code.
 
-Install Live Server extension.
+**Install Live Server extension.**
 
 Right-click index.html → Open with Live Server.
 (Usually runs at http://127.0.0.1:5500
